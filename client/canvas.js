@@ -1,4 +1,4 @@
-// Setup
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 canvas.width = 800;
@@ -19,20 +19,18 @@ let lastY = 0;
 brushBtn.onclick = () => currentTool = "brush";
 eraserBtn.onclick = () => currentTool = "eraser";
 
-// Undo/Redo history
+
 let history = [];
 let redoStack = [];
 
-// Cursor tracking
+
 const myId = Math.random().toString(36).substr(2, 9);
 const myColor = "#" + Math.floor(Math.random()*16777215).toString(16);
 const otherCursors = {};
 
 const socket = io("http://localhost:3000");
 
-// -------------------
-// Mouse events
-// -------------------
+
 canvas.addEventListener("mousedown", (e) => {
   isDrawing = true;
   lastX = e.offsetX;
@@ -41,12 +39,12 @@ canvas.addEventListener("mousedown", (e) => {
 
 canvas.addEventListener("mouseup", () => { isDrawing = false; });
 canvas.addEventListener("mousemove", (e) => {
-  // Send cursor
+  
   socket.emit("cursor", { x: e.offsetX, y: e.offsetY, color: myColor, id: myId });
 
   if (!isDrawing) return;
 
-  // Draw locally
+  
   const action = {
     x1: lastX, y1: lastY,
     x2: e.offsetX, y2: e.offsetY,
@@ -64,9 +62,7 @@ canvas.addEventListener("mousemove", (e) => {
   lastY = e.offsetY;
 });
 
-// -------------------
-// Draw line helper
-// -------------------
+
 function drawLine(action) {
   ctx.beginPath();
   ctx.moveTo(action.x1, action.y1);
@@ -84,9 +80,7 @@ function drawLine(action) {
   ctx.stroke();
 }
 
-// -------------------
-// Redraw everything
-// -------------------
+
 function redrawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -105,9 +99,7 @@ function redrawCanvas() {
   }
 }
 
-// -------------------
-// Undo/Redo
-// -------------------
+
 undoBtn.onclick = () => {
   if (history.length === 0) return;
   redoStack.push(history.pop());
@@ -122,9 +114,7 @@ redoBtn.onclick = () => {
   redrawCanvas();
 };
 
-// -------------------
-// Socket events
-// -------------------
+
 socket.on("draw", (data) => {
   history.push(data);
   drawLine(data);
