@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Collaborative Canvas</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -8,9 +9,10 @@
   <h2>Collaborative Canvas</h2>
 
   <div class="toolbar">
-    <input type="color" id="colorPicker" value="#000000">
-    <input type="range" id="strokeWidth" min="1" max="20" value="5">
+    <button id="brushBtn" class="active">Brush</button>
     <button id="eraserBtn">Eraser</button>
+    <input type="color" id="colorPicker" value="#000000">
+    <input type="range" id="strokeWidth" min="1" max="30" value="5">
     <button id="undoBtn">Undo</button>
     <button id="redoBtn">Redo</button>
   </div>

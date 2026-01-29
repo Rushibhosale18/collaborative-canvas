@@ -1,9 +1,10 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
+const brushBtn = document.getElementById('brushBtn');
+const eraserBtn = document.getElementById('eraserBtn');
 const colorPicker = document.getElementById('colorPicker');
 const strokeWidthInput = document.getElementById('strokeWidth');
-const eraserBtn = document.getElementById('eraserBtn');
 const undoBtn = document.getElementById('undoBtn');
 const redoBtn = document.getElementById('redoBtn');
 
@@ -11,18 +12,32 @@ const socket = io();
 
 let isDrawing = false;
 let currentStroke = [];
+let tool = 'brush';
 let color = colorPicker.value;
 let width = strokeWidthInput.value;
-let isEraser = false;
 
 // Canvas size
-canvas.width = window.innerWidth - 20;
-canvas.height = window.innerHeight - 100;
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight - 60;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
-// Tool events
+// Tool selection
+brushBtn.addEventListener('click', () => {
+  tool = 'brush';
+  brushBtn.classList.add('active');
+  eraserBtn.classList.remove('active');
+});
+eraserBtn.addEventListener('click', () => {
+  tool = 'eraser';
+  eraserBtn.classList.add('active');
+  brushBtn.classList.remove('active');
+});
+
 colorPicker.addEventListener('change', e => color = e.target.value);
 strokeWidthInput.addEventListener('change', e => width = e.target.value);
-eraserBtn.addEventListener('click', () => isEraser = !isEraser);
 
 // Mouse events
 canvas.addEventListener('mousedown', () => {
@@ -34,7 +49,7 @@ canvas.addEventListener('mouseup', () => {
   if (!isDrawing) return;
   isDrawing = false;
   if (currentStroke.length > 0) {
-    socket.emit('stroke', currentStroke); // send stroke to server
+    socket.emit('stroke', currentStroke);
   }
 });
 
@@ -44,19 +59,19 @@ canvas.addEventListener('mousemove', (e) => {
   const point = {
     x: e.offsetX,
     y: e.offsetY,
-    color: isEraser ? '#FFFFFF' : color,
+    color: tool === 'eraser' ? '#FFFFFF' : color,
     width: width
   };
 
   currentStroke.push(point);
-  drawStroke([point]); // draw locally
+  drawStroke([point]);
 });
 
-// Undo / Redo buttons
+// Undo / Redo
 undoBtn.addEventListener('click', () => socket.emit('undo'));
 redoBtn.addEventListener('click', () => socket.emit('redo'));
 
-// Draw function
+// Draw stroke
 function drawStroke(stroke) {
   stroke.forEach((point, i) => {
     if (i === 0) ctx.beginPath();
@@ -70,13 +85,13 @@ function drawStroke(stroke) {
   });
 }
 
-// Clear and redraw entire canvas
+// Redraw full canvas
 function redrawCanvas(strokes) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   strokes.forEach(stroke => drawStroke(stroke));
 }
 
-// Socket.io events
+// Socket events
 socket.on('stroke', (stroke) => drawStroke(stroke));
 socket.on('load-strokes', (strokes) => redrawCanvas(strokes));
 socket.on('update-canvas', (strokes) => redrawCanvas(strokes));

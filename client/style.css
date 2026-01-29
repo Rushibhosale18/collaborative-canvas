@@ -1,21 +1,27 @@
 body {
+  margin: 0;
   font-family: Arial, sans-serif;
-  text-align: center;
-  margin: 20px;
-}
-
-canvas {
-  border: 2px solid black;
-  cursor: crosshair;
-  display: block;
-  margin: 20px auto;
 }
 
 .toolbar {
-  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #ccc;
 }
 
-button {
-  margin-left: 5px;
-  padding: 5px 10px;
+button.active {
+  background-color: #007bff;
+  color: #fff;
 }
+
+canvas {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #ccc;
+  cursor: crosshair;
+}
+

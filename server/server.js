@@ -7,10 +7,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Serve client folder
+// Serve client files
 app.use(express.static(path.join(__dirname, '../client')));
 
-// Store all strokes globally
+// Global drawing state
 let strokes = [];
 let undoneStrokes = [];
 
@@ -20,11 +20,11 @@ io.on('connection', (socket) => {
   // Send existing strokes to new user
   socket.emit('load-strokes', strokes);
 
-  // Receive a new stroke
+  // New stroke from user
   socket.on('stroke', (stroke) => {
-    strokes.push(stroke); // save globally
+    strokes.push(stroke);
     undoneStrokes = []; // clear redo stack
-    socket.broadcast.emit('stroke', stroke); // broadcast to others
+    socket.broadcast.emit('stroke', stroke);
   });
 
   // Undo last stroke
@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
     if (strokes.length > 0) {
       const undone = strokes.pop();
       undoneStrokes.push(undone);
-      io.emit('update-canvas', strokes); // send updated canvas to all
+      io.emit('update-canvas', strokes);
     }
   });
 
@@ -41,7 +41,7 @@ io.on('connection', (socket) => {
     if (undoneStrokes.length > 0) {
       const redoStroke = undoneStrokes.pop();
       strokes.push(redoStroke);
-      io.emit('update-canvas', strokes); // send updated canvas to all
+      io.emit('update-canvas', strokes);
     }
   });
 
